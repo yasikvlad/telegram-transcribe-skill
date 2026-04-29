@@ -4,18 +4,31 @@
 
 📖 **Полная инструкция (для учеников):** https://yasikvlad.github.io/telegram-transcribe-skill/
 
-## Установка одной командой
+## Установка через Claude Code
+
+Для учеников курса — открой Claude Code и вставь это сообщение Клоду:
+
+```
+Поставь мне скилл telegram-transcribe-skill.
+Запусти этот установщик и подожди пока всё доделается:
+
+curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash
+```
+
+Клод спросит разрешение запустить команду — жми **Yes**. Дальше он сам поставит всё за 3-5 минут.
+
+## Установка через Терминал (для тех кто умеет)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash
 ```
 
-Скрипт сам:
-- Поставит Homebrew (если нет)
-- Поставит `whisper-cpp` и `ffmpeg`
-- Скачает модель `large-v3-turbo` (1.5 ГБ)
-- Установит скилл в `~/.claude/skills/telegram-transcribe/`
-- Положит `transcribe-tg.sh` в `~/bin/` для запуска из терминала
+Что делает установщик (в обоих случаях):
+- Ставит Homebrew (если нет)
+- Ставит `whisper-cpp` и `ffmpeg`
+- Скачивает модель `large-v3-turbo` (1.5 ГБ)
+- Кладёт скилл в `~/.claude/skills/telegram-transcribe/`
+- Кладёт `transcribe-tg.sh` в `~/bin/` для опционального запуска из терминала
 
 ## Как пользоваться
 

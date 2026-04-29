@@ -169,8 +169,69 @@ main {
   scrollbar-width: thin;
 }
 
+.code-block.multiline {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 18px 18px 56px 18px;
+  line-height: 1.7;
+}
+
+.code-block.multiline pre {
+  font-family: inherit;
+  font-size: inherit;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-block.multiline .copy-btn {
+  top: auto;
+  bottom: 12px;
+  right: 12px;
+  transform: none;
+}
+
 .code-block::-webkit-scrollbar { height: 6px; }
 .code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.install-intro {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  margin-top: -4px;
+}
+
+.alt-install {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.alt-install summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-faint);
+  list-style: none;
+  user-select: none;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+
+.alt-install summary:hover { color: var(--text-dim); }
+
+.alt-install summary::-webkit-details-marker { display: none; }
+
+.alt-install summary::before {
+  content: '▸ ';
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.alt-install[open] summary::before { transform: rotate(90deg); }
+
+.alt-install[open] summary { color: var(--text-dim); margin-bottom: 12px; }
+
+.alt-install .code-block { font-size: 12px; }
 
 .copy-btn {
   position: absolute;
@@ -449,12 +510,24 @@ footer a { color: var(--text-dim); }
   </div>
 
   <div class="install-card">
-    <div class="label">Установка одной командой</div>
-    <div class="code-block">
-      <span id="install-cmd">curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash</span>
+    <div class="label">Установка через Claude Code</div>
+    <p class="install-intro">Открой Claude Code как обычно → вставь это сообщение Клоду → жми Enter:</p>
+    <div class="code-block multiline">
+      <pre id="install-cmd">Поставь мне скилл telegram-transcribe-skill.
+Запусти этот установщик и подожди пока всё доделается:
+
+curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash</pre>
       <button class="copy-btn" data-target="install-cmd">Скопировать</button>
     </div>
-    <p class="install-note">Открой Терминал на Mac (Cmd+Space → «Терминал») → вставь команду → Enter. Скрипт сам поставит всё что нужно за ~5 минут.</p>
+    <p class="install-note">Клод сам всё поставит за 3-5 минут. Когда он спросит разрешение запустить команду — жми <strong>Yes</strong>. Готово, когда увидишь «🎉 Готово!»</p>
+
+    <details class="alt-install">
+      <summary>Я умею пользоваться Терминалом — дай команду напрямую</summary>
+      <div class="code-block">
+        <span id="install-cmd-terminal">curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash</span>
+        <button class="copy-btn" data-target="install-cmd-terminal">Скопировать</button>
+      </div>
+    </details>
   </div>
 </section>
 
@@ -569,7 +642,14 @@ footer a { color: var(--text-dim); }
   <details class="faq-item">
     <summary>Что такое Claude Code и где его взять?</summary>
     <div class="answer">
-      Claude Code — это CLI от Anthropic, через который мы взаимодействуем с Клодом в проекте AI-Ковчег. Если ты уже учишься на 2-м потоке, он у тебя стоит. Если нет — забей на этот скилл, он только под Claude Code заточен.
+      Claude Code — это инструмент от Anthropic для работы с Клодом, через него мы делаем 90% задач на курсе. Если ты на 2-м потоке AI-Маркетолога — он у тебя уже установлен и настроен (мы ставили на первом занятии). Если нет — этот скилл не для тебя, он работает только в связке с Claude Code.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Куда вообще писать команду установки?</summary>
+    <div class="answer">
+      В то же окно Claude Code, где ты обычно общаешься с Клодом. Открываешь Claude Code как на занятиях, скопированный текст вставляешь как обычное сообщение, жмёшь Enter. Дальше Клод сам всё сделает, ты только подтверждаешь его запросы кнопкой <strong>Yes</strong>.
     </div>
   </details>
 
@@ -581,9 +661,9 @@ footer a { color: var(--text-dim); }
   </details>
 
   <details class="faq-item">
-    <summary>Скрипт сломался на установке, что делать?</summary>
+    <summary>Установка сломалась, что делать?</summary>
     <div class="answer">
-      Скопируй последние строки из терминала (где красная ✗) и пришли в чат AI-Маркетолога. Чаще всего проблема — нет интернета на этапе скачивания модели, или Homebrew просит пароль и это не видно. В обоих случаях запусти скрипт ещё раз — он подхватит с того места, где упал.
+      Сделай скриншот того, что Клод вывел красным — и пришли в чат AI-Маркетолога. Чаще всего проблема — нет интернета на этапе скачивания модели (1.5 ГБ) или Homebrew просит пароль (Клод покажет это сообщение). В обоих случаях скажи Клоду «запусти установку ещё раз» — скрипт подхватит с того места, где упал, ничего повторно не качается.
     </div>
   </details>
 
