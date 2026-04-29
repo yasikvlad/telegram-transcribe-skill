@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram Transcribe — расшифровка голосовых локально на Mac</title>
+<meta name="description" content="Скилл для Claude Code: расшифровывает все голосовые из экспорта Telegram у тебя на компе. Без облака, без подписок. Для AI-Маркетолога, 2 поток.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #13131c;
+  --bg-card-hover: #1a1a26;
+  --border: #25252f;
+  --text: #ededf0;
+  --text-dim: #9999a8;
+  --text-faint: #62626f;
+  --accent: #7c5cff;
+  --accent-hover: #9379ff;
+  --accent-glow: rgba(124, 92, 255, 0.25);
+  --green: #4ade80;
+  --yellow: #fbbf24;
+  --red: #f87171;
+  --gradient: linear-gradient(135deg, #7c5cff 0%, #ff5cae 100%);
+  --code-bg: #0d0d14;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Background glow effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* === HERO === */
+.hero {
+  padding: 80px 0 60px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(124, 92, 255, 0.12);
+  border: 1px solid rgba(124, 92, 255, 0.3);
+  border-radius: 100px;
+  color: var(--accent-hover);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+
+.hero h1 .accent {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p.lead {
+  font-size: 19px;
+  color: var(--text-dim);
+  max-width: 560px;
+  margin: 0 auto 40px;
+}
+
+.tags {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.tag {
+  padding: 5px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === INSTALL CARD === */
+.install-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: left;
+  margin: 0 auto;
+  max-width: 720px;
+  box-shadow: 0 20px 60px -20px var(--accent-glow);
+}
+
+.install-card .label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.install-card .label::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--green);
+}
+
+.code-block {
+  position: relative;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 60px 16px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.code-block::-webkit-scrollbar { height: 6px; }
+.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.copy-btn {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.copy-btn.copied {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+}
+
+.install-note {
+  font-size: 13px;
+  color: var(--text-faint);
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* === SECTIONS === */
+section.content {
+  padding: 60px 0;
+}
+
+h2 {
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+h2 + .subtitle {
+  color: var(--text-dim);
+  font-size: 17px;
+  margin-bottom: 36px;
+}
+
+h3 {
+  font-size: 19px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+p { color: var(--text-dim); margin-bottom: 14px; font-size: 16px; }
+p strong { color: var(--text); font-weight: 600; }
+
+a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(147, 121, 255, 0.3);
+  transition: all 0.15s;
+}
+a:hover { border-bottom-color: var(--accent-hover); }
+
+/* === BENEFIT CARDS === */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(124, 92, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.card .icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+  display: inline-block;
+}
+
+.card h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.card p {
+  font-size: 14.5px;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* === STEPS === */
+.steps {
+  list-style: none;
+  counter-reset: step;
+  margin-top: 32px;
+}
+
+.step {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px 28px 26px 88px;
+  margin-bottom: 14px;
+  position: relative;
+  counter-increment: step;
+}
+
+.step::before {
+  content: counter(step);
+  position: absolute;
+  left: 24px;
+  top: 26px;
+  width: 44px;
+  height: 44px;
+  background: var(--gradient);
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px -4px var(--accent-glow);
+}
+
+.step h3 { margin-bottom: 8px; }
+
+.step p { margin-bottom: 0; font-size: 15.5px; }
+
+.step .step-code {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent-hover);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* === FAQ === */
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.faq-item summary {
+  padding: 18px 22px;
+  font-weight: 600;
+  font-size: 15.5px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+  content: '+';
+  font-size: 22px;
+  color: var(--text-faint);
+  font-weight: 300;
+  transition: transform 0.2s;
+}
+
+.faq-item[open] summary::after { transform: rotate(45deg); }
+
+.faq-item .answer {
+  padding: 0 22px 22px;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.faq-item .answer code {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent-hover);
+}
+
+/* === SPEC GRID === */
+.specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.spec {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.spec .key { font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.spec .val { font-size: 16px; font-weight: 600; color: var(--text); }
+
+/* === FOOTER === */
+footer {
+  padding: 40px 0 60px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  color: var(--text-faint);
+  font-size: 14px;
+}
+
+footer a { color: var(--text-dim); }
+
+/* === MOBILE === */
+@media (max-width: 640px) {
+  main { padding: 0 16px; }
+  .hero { padding: 50px 0 40px; }
+  section.content { padding: 40px 0; }
+  .install-card { padding: 20px; }
+  .code-block { font-size: 11.5px; padding: 14px 50px 14px 14px; }
+  .copy-btn { font-size: 11px; padding: 5px 10px; }
+  .step { padding: 22px 22px 22px 76px; }
+  .step::before { left: 18px; top: 22px; width: 38px; height: 38px; font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<main>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="badge">AI-Маркетолог · 2 поток</div>
+  <h1>Расшифровывай голосовые из Telegram <span class="accent">локально</span> на своём Mac</h1>
+  <p class="lead">Скилл для Claude Code, который превращает все войсы из экспорта чата в текст. Без облака, без подписок, без отправки данных в интернет.</p>
+
+  <div class="tags">
+    <span class="tag">macOS</span>
+    <span class="tag">Apple Silicon</span>
+    <span class="tag">whisper.cpp</span>
+    <span class="tag">100% локально</span>
+    <span class="tag">бесплатно</span>
+  </div>
+
+  <div class="install-card">
+    <div class="label">Установка одной командой</div>
+    <div class="code-block">
+      <span id="install-cmd">curl -fsSL https://raw.githubusercontent.com/yasikvlad/telegram-transcribe-skill/main/install.sh | bash</span>
+      <button class="copy-btn" data-target="install-cmd">Скопировать</button>
+    </div>
+    <p class="install-note">Открой Терминал на Mac (Cmd+Space → «Терминал») → вставь команду → Enter. Скрипт сам поставит всё что нужно за ~5 минут.</p>
+  </div>
+</section>
+
+<!-- ===== ЧТО ЭТО ===== -->
+<section class="content">
+  <h2>Зачем тебе это</h2>
+  <p class="subtitle">Если ты разбираешь продажные звонки, созвоны с клиентами, голосовые от учеников или брейнштормы из чатов — этот скилл сэкономит тебе часы каждую неделю.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h3>33 голосовых за минуту</h3>
+      <p>На M-чипе через Metal-ускорение. Час голосовых превращается в текст за пару минут.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h3>Ничего не уходит в облако</h3>
+      <p>Модель крутится прямо у тебя на компе. Голосовые с клиентами не утекают на сторонние сервера.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💰</div>
+      <h3>Бесплатно навсегда</h3>
+      <p>Не платишь за минуты транскрибации. Поставил один раз — пользуешься без лимитов.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🇷🇺</div>
+      <h3>Русский на топ-уровне</h3>
+      <p>Понимает мат, перебивки, шум на фоне, бизнес-терминологию. Качество как в платных сервисах.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🤖</div>
+      <h3>Работает прямо в Claude</h3>
+      <p>Скажи Клоду «расшифруй голосовые из этой папки» — он сделает. Без отдельных приложений.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📁</div>
+      <h3>Сразу готово к разбору</h3>
+      <p>Получаешь общий файл со всеми транскриптами — кидаешь Клоду и просишь саммари, выводы, задачи.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ПОД КАПОТОМ ===== -->
+<section class="content">
+  <h2>Что под капотом</h2>
+  <p class="subtitle">На случай если интересно, на чём это работает.</p>
+
+  <p><strong>Whisper</strong> — это нейросеть от OpenAI для распознавания речи. <strong>whisper.cpp</strong> — её портированная версия на C++, которая работает напрямую на твоём процессоре. На Apple Silicon (M1/M2/M3/M4/M5) она использует Metal — это технология ускорения вычислений на видеокарте Mac, делает работу в 5–10 раз быстрее.</p>
+
+  <p>Модель <strong>large-v3-turbo</strong> — это последняя и самая быстрая версия Whisper большого размера. Качество как у large-v3, но в 8 раз быстрее. Для русского языка — топовый выбор.</p>
+
+  <div class="specs">
+    <div class="spec"><div class="key">Модель</div><div class="val">large-v3-turbo</div></div>
+    <div class="spec"><div class="key">Размер</div><div class="val">1.5 ГБ</div></div>
+    <div class="spec"><div class="key">Движок</div><div class="val">whisper.cpp</div></div>
+    <div class="spec"><div class="key">Ускорение</div><div class="val">Metal (Apple GPU)</div></div>
+    <div class="spec"><div class="key">Языки</div><div class="val">99 (включая русский)</div></div>
+    <div class="spec"><div class="key">Скорость</div><div class="val">~30× реалтайма</div></div>
+  </div>
+</section>
+
+<!-- ===== КАК ПОЛЬЗОВАТЬСЯ ===== -->
+<section class="content">
+  <h2>Как этим пользоваться</h2>
+  <p class="subtitle">Три шага после установки. Делается за пару минут на любой чат.</p>
+
+  <ol class="steps">
+    <li class="step">
+      <h3>Экспорт чата из Telegram Desktop</h3>
+      <p>Открой нужный чат на компе → правый верхний угол ⋯ → <strong>Export chat history</strong>. В настройках поставь галочку <strong>Voice messages</strong> и формат <strong>HTML</strong>. Жми <em>Export</em>.</p>
+      <p>Папка с экспортом появится в <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent-hover)">~/Downloads/Telegram Desktop/ChatExport_YYYY-MM-DD/</code></p>
+    </li>
+
+    <li class="step">
+      <h3>Открой Claude Code и попроси расшифровать</h3>
+      <p>В терминале запусти <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent-hover)">claude</code> и напиши:</p>
+      <div class="step-code">расшифруй голосовые из ~/Downloads/Telegram Desktop/ChatExport_2026-04-29</div>
+      <p>Скилл подхватится сам. Клод увидит триггер «расшифруй голосовые» и запустит транскрибацию.</p>
+    </li>
+
+    <li class="step">
+      <h3>Получи готовый текст</h3>
+      <p>В папке экспорта появится подпапка <strong>transcripts/</strong>:</p>
+      <ul style="margin:10px 0 0 20px; color:var(--text-dim); font-size:15px;">
+        <li><code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent-hover)">audio_*.txt</code> — отдельные файлы для каждого голосового</li>
+        <li><code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent-hover)">_ALL.md</code> — общий файл со всем подряд</li>
+      </ul>
+      <p style="margin-top:14px">Дальше можешь скормить <strong>_ALL.md</strong> Клоду и попросить выжимку, инсайты, задачи — то, для чего ты вообще эти голосовые расшифровывал.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="content">
+  <h2>Что может пойти не так</h2>
+  <p class="subtitle">FAQ и решения проблем.</p>
+
+  <details class="faq-item">
+    <summary>У меня Intel Mac, сработает?</summary>
+    <div class="answer">
+      Сработает, но медленнее в 5–10 раз — Metal-ускорение работает только на Apple Silicon (M1/M2/M3/M4/M5). На Intel оно пойдёт через CPU. Если у тебя M-чип — летает.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>У меня Windows / Linux</summary>
+    <div class="answer">
+      Этот скилл — только для Mac. На Windows/Linux есть аналогичные пути через WSL или нативные сборки whisper.cpp, но это уже отдельная история.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Что такое Claude Code и где его взять?</summary>
+    <div class="answer">
+      Claude Code — это CLI от Anthropic, через который мы взаимодействуем с Клодом в проекте AI-Ковчег. Если ты уже учишься на 2-м потоке, он у тебя стоит. Если нет — забей на этот скилл, он только под Claude Code заточен.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Сколько места займёт?</summary>
+    <div class="answer">
+      Модель — 1.5 ГБ. Зависимости (whisper-cpp + ffmpeg) — около 200 МБ. Скрипт и скилл — пара килобайт. Итого ~1.7 ГБ.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Скрипт сломался на установке, что делать?</summary>
+    <div class="answer">
+      Скопируй последние строки из терминала (где красная ✗) и пришли в чат AI-Маркетолога. Чаще всего проблема — нет интернета на этапе скачивания модели, или Homebrew просит пароль и это не видно. В обоих случаях запусти скрипт ещё раз — он подхватит с того места, где упал.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>А кружочки (видео-сообщения)?</summary>
+    <div class="answer">
+      Подхватываются автоматически, если в экспорте поставить галочку <strong>Video messages</strong>. Скилл идёт по папке <code>round_video_messages/</code> и достаёт оттуда аудиодорожку.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Можно через терминал без Claude?</summary>
+    <div class="answer">
+      Да. Инсталлятор кладёт команду в <code>~/bin/transcribe-tg.sh</code>. Запуск:<br>
+      <code>~/bin/transcribe-tg.sh "путь/к/ChatExport_..."</code>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Как удалить, если не понравится?</summary>
+    <div class="answer">
+      Выполни в терминале:<br>
+      <code>brew uninstall whisper-cpp ffmpeg</code><br>
+      <code>rm -rf ~/.whisper-models ~/.claude/skills/telegram-transcribe ~/bin/transcribe-tg.sh</code>
+    </div>
+  </details>
+</section>
+
+<footer>
+  <p>Сделано в рамках курса AI-Маркетолог · поток 2</p>
+  <p style="margin-top:6px"><a href="https://github.com/yasikvlad/telegram-transcribe-skill">Исходники на GitHub</a></p>
+</footer>
+
+</main>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    const text = target.innerText.trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.innerText;
+      btn.innerText = 'Скопировано ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerText = original;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
